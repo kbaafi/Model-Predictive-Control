@@ -1,0 +1,1 @@
+/home/kbaafi/SDCAR/CarND-MPC-Project/ipopt/Ipopt/tutorial/Modeling/bad1.mod

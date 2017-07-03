@@ -44,72 +44,59 @@ Self-Driving Car Engineer Nanodegree Program
 
 ## Basic Build Instructions
 
-
 1. Clone this repo.
 2. Make a build directory: `mkdir build && cd build`
 3. Compile: `cmake .. && make`
 4. Run it: `./mpc`.
 
-## Tips
+## About the Project
+In this project a Model Predictive Control for a self driving car is implemented. As the name suggests, the goal is to build a model that closely mimics the kinematic properties of the car as it moves. Using this model, the car can be actuated to run as close to a predefine path as possible. The model depends on such properties of the car as `speed`, `acceleration`, `x and y coordinates`, `center of gravity`, `steering angle` etc. Given a predefined path, this method attempts to fit a `local path` on which the car runs for a period of time until the next time step.
 
-1. It's recommended to test the MPC on basic examples to see if your implementation behaves as desired. One possible example
-is the vehicle starting offset of a straight line (reference). If the MPC implementation is correct, after some number of timesteps
-(not too many) it should find and track the reference line.
-2. The `lake_track_waypoints.csv` file has the waypoints of the lake track. You could use this to fit polynomials and points and see of how well your model tracks curve. NOTE: This file might be not completely in sync with the simulator so your solution should NOT depend on it.
-3. For visualization this C++ [matplotlib wrapper](https://github.com/lava/matplotlib-cpp) could be helpful.
+## Kinematic Model
+The current state of the car is defined by a six variable vector:
 
-## Editor Settings
+1. x position(`x_t`)
+2. y position (`y_t`)
+3. orientation (`psi_t`)
+4. velocity (`v_t`)
+5. cross track error (`cte_t`)
+6. orientations error (`epsi_t`)
 
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
+The actuation of the vehicle is controlled by the throttle and the steering angle. Let these variables be 'a' and 'delta' respectively.
 
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
+at the next state, we predict that the state of the car should be as follows:
+1. new x position (`x_t1`) = `x_t + v_t * cos(psi_t)`
+2. new y position (`y_t1`) = `y_t + v_t * sin(psi_t)`
+3. new orientation (`psi_t1`) = `(psi_t + v_t * delta / Lf * dt)` where `Lf` is the distance from the front wheels of the car to the center of gravity and `dt` is the elapsed time between actuations
+4. new velocity (`v_t1`) = `v_t + a* dt`
 
-## Code Style
+A section of the path is delivered to the car and with this, we fit a function to the path in terms of x and y coordinates. The function fit to the path is used to calculate the new cross track error and orientation error. If the fit function at the current time is `f_t`, The desired orientation `psi_des` is the tan inverse of the derivative of `f_t` 
 
-Please (do your best to) stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
+5. new cross track error (`cte_t1`) = `(f_t - y_t) + (v_t * sin(epsi_t)*dt)`
+6. new orientation error (`epsi_t1`) = `(psi_t + psi_des)-(v_t * delta_t/Lf * dt)`
 
-## Project Instructions and Rubric
+Using what we know about the current state and what we expect the next state to be, we can project the actuations(acceleration and steering angle) that can produce the best path that follows the provided path
 
-Note: regardless of the changes you make, your project must be buildable using
-cmake and make!
+The task to obtain the best path will can be determined by optimization based on constraints placed on the kinematic model. The constraints used(without equations) are listed below
 
-More information is only accessible by people who are already enrolled in Term 2
-of CarND. If you are enrolled, see [the project page](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/f1820894-8322-4bb3-81aa-b26b3c6dcbaf/lessons/b1ff3be0-c904-438e-aad3-2b5379f0e0c3/concepts/1a2255a0-e23c-44cf-8d41-39b8a3c8264a)
-for instructions and the project rubric.
+1. The car's new cross track error should be as close as possible to the reference cross track error
+2. The car should try to maintain its velocity at the reference velocity
+3. The car new orientation error should be as close as possible to the reference orientation error
+4. The car should mute the acceleration and steering angle as much as possible but not too much to impair the motion of the car
+5. The car should try to keep changes actuation as little as possible but should be responsive enough 
 
-## Hints!
+The optimization returns the next state and actuation variables, these are used actuate the car in the next step
 
-* You don't have to follow this directory structure, but if you do, your work
-  will span all of the .cpp files here. Keep an eye out for TODOs.
+## Latency
+Given that there may be a delay between when the car's new actuation values are delivered to the wheels. In the simulator, there is a 100 ms delay that simulates the latency. In this system, we pick the actuation values that are expected to occur at the current time + 100 ms
 
-## Call for IDE Profiles Pull Requests
 
-Help your fellow students!
 
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to we ensure
-that students don't feel pressured to use one IDE or another.
+## Timeestep Length and Elapsed Duration
+The chosen time duration is 1 second. The number of steps is chosen as 10 and the timestep is chosen as 0.1s.
 
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
+## Results
+We are able to drive the car around the track at an average speed of 38mph with set reference velocity of 70mph 
 
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
 
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
 
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. My expectation is that most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
-
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./

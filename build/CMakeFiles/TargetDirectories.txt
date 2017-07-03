@@ -1,0 +1,3 @@
+/home/kbaafi/SDCAR/CarND-MPC-Project/build/CMakeFiles/edit_cache.dir
+/home/kbaafi/SDCAR/CarND-MPC-Project/build/CMakeFiles/rebuild_cache.dir
+/home/kbaafi/SDCAR/CarND-MPC-Project/build/CMakeFiles/mpc.dir

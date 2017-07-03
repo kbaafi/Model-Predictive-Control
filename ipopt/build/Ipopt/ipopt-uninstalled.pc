@@ -1,0 +1,10 @@
+prefix=/usr/local
+libdir=/home/kbaafi/SDCAR/CarND-MPC-Project/ipopt/build/Ipopt/src/Interfaces
+
+Name: IPOPT
+Description: Interior Point Optimizer
+URL: https://projects.coin-or.org/Ipopt
+Version: 3.12.8
+Libs: ${libdir}/libipopt.la -llapack -lblas -lm  -ldl
+Cflags: -I/home/kbaafi/SDCAR/CarND-MPC-Project/ipopt/Ipopt/src/Interfaces -I/home/kbaafi/SDCAR/CarND-MPC-Project/ipopt/Ipopt/src/Common -I/home/kbaafi/SDCAR/CarND-MPC-Project/ipopt/Ipopt/src/LinAlg -I/home/kbaafi/SDCAR/CarND-MPC-Project/ipopt/Ipopt/src/Algorithm -I/home/kbaafi/SDCAR/CarND-MPC-Project/ipopt/Ipopt/src/contrib/CGPenalty -I/home/kbaafi/SDCAR/CarND-MPC-Project/ipopt/Ipopt/src/contrib/LinearSolverLoader -I/home/kbaafi/SDCAR/CarND-MPC-Project/ipopt/build/Ipopt/src/Common
+Requires: 
